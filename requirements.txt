@@ -1,0 +1,7 @@
+streamlit
+skyfield
+folium
+streamlit-folium
+numpy
+pandas
+requests
