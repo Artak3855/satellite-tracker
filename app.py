@@ -29,7 +29,7 @@ sat_choice = st.sidebar.selectbox("Select Satellite Constellation", [
 
 show_constellation_layer = st.sidebar.checkbox("Show Full Constellation Network Layer", value=True)
 
-# TLE Datasets with precise positioning over the region
+# TLE Datasets
 constellation_tles = {
     "GPS Navigation Constellation (MEO)": [
         ("GPS BIIF-2 (PRN 01)", "1 36797U 10022A   23292.51234567  .00000012  00000-0  00000-0 0  9993", "2 36797  55.2341 44.5152 0012345  45.6789 314.5678  2.00567890213451"),
@@ -55,14 +55,12 @@ station = Topos(latitude_degrees=lat, longitude_degrees=lon, elevation_m=elevati
 
 sat_list = constellation_tles.get(sat_choice, constellation_tles["GPS Navigation Constellation (MEO)"])
 
-# Calculate primary satellite for metrics
 primary_name, t1, t2 = sat_list[0]
 primary_sat = EarthSatellite(t1, t2, primary_name, ts)
 topocentric = (primary_sat - station).at(t)
 alt, az, distance = topocentric.altaz()
 dist_km = distance.km
 
-# ITU-R Free Space Path Loss (FSPL) standard formula
 fspl_db = 20 * np.log10(dist_km) + 20 * np.log10(freq_ghz * 1000) + 32.44
 velocity = topocentric.velocity.km_per_s
 doppler_hz = - (freq_ghz * 1e9) * (velocity[2] / 299792.458)
@@ -80,15 +78,16 @@ is_visible = alt.degrees > 0
 status_msg = "🟢 Visible (Link Active over Armenia)" if is_visible else "🔴 Below Horizon"
 st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.elevation.km:.1f} km | **Constellation:** {sat_choice}")
 
-# Map Visualization with constrained single-world view and max bounds
+# Map Visualization with strict single-world boundaries (No repeating world)
 m = folium.Map(
     location=[lat, lon], 
-    zoom_start=4, 
-    max_bounds=True,
+    zoom_start=3,
     min_zoom=2,
-    max_zoom=10
+    max_zoom=8,
+    max_bounds=True
 )
-m.options['maxBounds'] = [[-90, -180], [90, 180]]
+# Strict coordinate bounds to prevent infinite horizontal scrolling / repetition
+m.fit_bounds([[-85, -180], [85, 180]])
 
 # Ground Station Marker (Yerevan)
 folium.Marker(
@@ -107,14 +106,12 @@ for idx, (name, line1, line2) in enumerate(sat_list):
     
     marker_color = "blue" if idx == 0 else "cadetblue"
     
-    # Satellite Marker
     folium.Marker(
         [sp.latitude.degrees, sp.longitude.degrees],
         popup=f"<b>{name}</b><br>Alt: {sp.elevation.km:.1f} km<br>Elevation: {s_alt.degrees:.1f}°",
         icon=folium.Icon(color=marker_color, icon="globe")
     ).add_to(m)
     
-    # Restored Blue Footprint Coverage Circle
     if show_constellation_layer:
         folium.Circle(
             location=[sp.latitude.degrees, sp.longitude.degrees],
