@@ -78,16 +78,8 @@ is_visible = alt.degrees > 0
 status_msg = "🟢 Visible (Link Active over Armenia)" if is_visible else "🔴 Below Horizon"
 st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.elevation.km:.1f} km | **Constellation:** {sat_choice}")
 
-# Map Visualization with strict single-world boundaries (No repeating world)
-m = folium.Map(
-    location=[lat, lon], 
-    zoom_start=3,
-    min_zoom=2,
-    max_zoom=8,
-    max_bounds=True
-)
-# Strict coordinate bounds to prevent infinite horizontal scrolling / repetition
-m.fit_bounds([[-85, -180], [85, 180]])
+# Standard flexible map view
+m = folium.Map(location=[lat, lon], zoom_start=3)
 
 # Ground Station Marker (Yerevan)
 folium.Marker(
