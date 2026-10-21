@@ -79,7 +79,7 @@ st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.e
 # Plotly 3D Globe Visualization
 fig = go.Figure()
 
-# Ground Station (Yerevan) - Fixed symbol error
+# Ground Station (Yerevan)
 fig.add_trace(go.Scattergeo(
     lon=[lon],
     lat=[lat],
@@ -138,7 +138,7 @@ fig.update_geos(
     oceancolor="rgb(5, 10, 20)",
     showcountries=True,
     countrycolor="rgb(50, 70, 90)",
-    showframeline=False,
+    showframe=False,  # Ուղղված է
     center=dict(lat=lat, lon=lon)
 )
 
