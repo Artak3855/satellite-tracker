@@ -23,7 +23,7 @@ st.markdown("""
 """, unsafe_allow_html=True)
 
 st.title("🛰️ Advanced 3D Space Constellation & ITU-R Link Budget Analyzer")
-st.markdown("Professional Multi-Constellation Telecommunications & Orbital Tracking System")
+st.markdown("Professional Multi-Orbit Telecommunications & Orbital Tracking System")
 
 # Sidebar - Ground Station Configuration
 st.sidebar.header("📍 Ground Station Parameters")
@@ -37,50 +37,52 @@ tx_power_dbw = st.sidebar.number_input("Transmitter Power (dBW)", value=10.0, st
 antenna_gain_dBi = st.sidebar.number_input("Receiver Antenna Gain (dBi)", value=35.0, step=0.5)
 system_noise_temp_k = st.sidebar.number_input("System Noise Temp (K)", value=150.0, step=10.0)
 
-sat_choice = st.sidebar.selectbox("Select Satellite Constellation", [
-    "GPS Navigation Constellation (MEO)", 
-    "GLONASS Constellation (MEO)",
-    "GALILEO Constellation (MEO)",
-    "Starlink Broadband Shell (LEO)",
-    "ISS (ZARYA) Research Station"
+# 1. Բաժին - Արբանյակային Համաստեղության Անունը
+st.sidebar.header("🛰️ Constellation Selection")
+sat_name = st.sidebar.selectbox("Satellite Constellation", [
+    "GPS Navigation Constellation", 
+    "GLONASS Constellation",
+    "GALILEO Constellation",
+    "Starlink Broadband Constellation"
 ])
 
-# Expanded TLE Datasets
+# 2. Բաժին - Ուղեծրային Տիրույթը (Orbit Tier)
+st.sidebar.header("🌌 Orbital Regime")
+orbit_tier = st.sidebar.selectbox("Orbit Type", [
+    "MEO (Medium Earth Orbit)",
+    "LEO (Low Earth Orbit)",
+    "GEO (Geostationary Earth Orbit)"
+])
+
+# TLE Datasets mapped properly
 constellation_tles = {
-    "GPS Navigation Constellation (MEO)": [
+    "GPS Navigation Constellation": [
         ("GPS PRN 01", "1 36797U 10022A   23292.51234567  .00000012  00000-0  00000-0 0  9993", "2 36797  55.2341 44.5152 0012345  45.6789 314.5678  2.00567890213451"),
         ("GPS PRN 13", "1 27145U 01058A   23292.41234567  .00000012  00000-0  00000-0 0  9994", "2 27145  55.5000 90.0000 0010000 100.0000 260.0000  2.00500000213452"),
         ("GPS PRN 22", "1 24876U 97035A   23292.51234567  .00000012  00000-0  00000-0 0  9995", "2 24876  55.0000 180.0000 0010000 200.0000 160.0000  2.00500000213453"),
-        ("GPS PRN 32", "1 32711U 08012A   23292.51234567  .00000012  00000-0  00000-0 0  9996", "2 32711  55.1000 270.0000 0011000 140.0000 220.0000  2.00500000213454"),
     ],
-    "GLONASS Constellation (MEO)": [
+    "GLONASS Constellation": [
         ("GLONASS-732", "1 37868U 11055A   23292.51234567  .00000012  00000-0  00000-0 0  9991", "2 37868  64.8500 44.5152 0010000  40.0000 320.0000  2.13000000123451"),
         ("GLONASS-743", "1 40001U 14035A   23292.51234567  .00000012  00000-0  00000-0 0  9992", "2 40001  64.7000 120.0000 0012000 150.0000 210.0000  2.13000000123452"),
         ("GLONASS-701", "1 43685U 18073A   23292.51234567  .00000012  00000-0  00000-0 0  9993", "2 43685  64.9000 200.0000 0008000 260.0000 100.0000  2.13000000123453"),
     ],
-    "GALILEO Constellation (MEO)": [
+    "GALILEO Constellation": [
         ("GALILEO-24", "1 43074U 17081A   23292.51234567  .00000012  00000-0  00000-0 0  9991", "2 43074  56.0000 44.5152 0002000  50.0000 310.0000  1.70500000123452"),
         ("GALILEO-22", "1 41859U 16060A   23292.51234567  .00000012  00000-0  00000-0 0  9992", "2 41859  56.1000 140.0000 0002500 160.0000 200.0000  1.70500000123453"),
-        ("GALILEO-19", "1 40889U 15050A   23292.51234567  .00000012  00000-0  00000-0 0  9993", "2 40889  56.2000 250.0000 0002000 110.0000 250.0000  1.70500000123454"),
     ],
-    "Starlink Broadband Shell (LEO)": [
+    "Starlink Broadband Constellation": [
         ("Starlink-3001", "1 44713U 19029B   23292.50000000  .00001234  00000-0  12345-3 0  9999", "2 44713  53.0500 44.5152 0001234  50.0000 310.0000 15.05000000123451"),
         ("Starlink-3002", "1 44714U 19029C   23292.50000000  .00001234  00000-0  12345-3 0  9999", "2 44714  53.0500 100.0000 0001234  80.0000 280.0000 15.05000000123452"),
         ("Starlink-3003", "1 44715U 19029D   23292.50000000  .00001234  00000-0  12345-3 0  9999", "2 44715  53.0500 160.0000 0001234 110.0000 250.0000 15.05000000123453"),
-        ("Starlink-3004", "1 44716U 19029E   23292.50000000  .00001234  00000-0  12345-3 0  9999", "2 44716  53.0500 220.0000 0001234 140.0000 220.0000 15.05000000123454"),
-        ("Starlink-3005", "1 44717U 19029F   23292.50000000  .00001234  00000-0  12345-3 0  9999", "2 44717  53.0500 280.0000 0001234 170.0000 190.0000 15.05000000123455"),
-    ],
-    "ISS (ZARYA) Research Station": [
-        ("ISS (ZARYA)", "1 25544U 98067A   23292.51234567  .00016717  00000-0  10270-3 0  9992", "2 25544  51.6416 44.5152 0006703 130.5360 325.0288 15.50038192421345")
     ]
 }
+
+sat_list = constellation_tles.get(sat_name, constellation_tles["GPS Navigation Constellation"])
 
 ts = load.timescale()
 now = datetime.datetime.utcnow()
 t = ts.utc(now.year, now.month, now.day, now.hour, now.minute, now.second)
 station = Topos(latitude_degrees=lat, longitude_degrees=lon, elevation_m=elevation_m)
-
-sat_list = constellation_tles.get(sat_choice, constellation_tles["GPS Navigation Constellation (MEO)"])
 
 primary_name, t1, t2 = sat_list[0]
 primary_sat = EarthSatellite(t1, t2, primary_name, ts)
@@ -109,7 +111,7 @@ col6.metric("Est. C/N₀", f"{c_n0_dbhz:.1f} dB-Hz")
 
 is_visible = alt.degrees > 0
 status_msg = "🟢 Visible (Link Active over Armenia)" if is_visible else "🔴 Below Horizon"
-st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.elevation.km:.1f} km | **Active Constellation:** {sat_choice}")
+st.info(f"**Status:** {status_msg} | **Primary Altitude:** {subpoint.elevation.km:.1f} km | **Constellation:** {sat_name} ({orbit_tier})")
 
 # Plotly 3D Globe with Space Theme
 fig = go.Figure()
