@@ -7,6 +7,21 @@ import plotly.graph_objects as go
 
 st.set_page_config(page_title="Pro 3D Space Constellation & Link Analyzer", layout="wide")
 
+# CSS Injection for Deep Space Background Theme
+st.markdown("""
+    <style>
+    .stApp {
+        background-color: #030712;
+        background-image: radial-gradient(white 1px, transparent 0);
+        background-size: 40px 40px;
+        color: #f3f4f6;
+    }
+    .sidebar .st-bg {
+        background-color: #0b0f19;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
 st.title("🛰️ Advanced 3D Space Constellation & ITU-R Link Budget Analyzer")
 st.markdown("Professional Multi-Constellation Telecommunications & Orbital Tracking System")
 
@@ -30,7 +45,7 @@ sat_choice = st.sidebar.selectbox("Select Satellite Constellation", [
     "ISS (ZARYA) Research Station"
 ])
 
-# Expanded TLE Datasets for Multi-Satellite Constellations
+# Expanded TLE Datasets
 constellation_tles = {
     "GPS Navigation Constellation (MEO)": [
         ("GPS PRN 01", "1 36797U 10022A   23292.51234567  .00000012  00000-0  00000-0 0  9993", "2 36797  55.2341 44.5152 0012345  45.6789 314.5678  2.00567890213451"),
@@ -73,19 +88,17 @@ topocentric = (primary_sat - station).at(t)
 alt, az, distance = topocentric.altaz()
 dist_km = distance.km
 
-# Advanced Link Budget Calculations
 fspl_db = 20 * np.log10(dist_km) + 20 * np.log10(freq_ghz * 1000) + 32.44
 velocity = topocentric.velocity.km_per_s
 doppler_hz = - (freq_ghz * 1e9) * (velocity[2] / 299792.458)
 subpoint = primary_sat.at(t).subpoint()
 
-# Carrier-to-Noise Ratio (C/N0) estimation
-boltzmann_dbw = -228.6 # dBW/Hz/K
+boltzmann_dbw = -228.6
 k_noise_power = 10 * np.log10(system_noise_temp_k) + boltzmann_dbw
 received_power_dbw = tx_power_dbw + antenna_gain_dBi - fspl_db
 c_n0_dbhz = received_power_dbw - k_noise_power
 
-# Extended Professional Metrics Dashboard
+# Metrics Dashboard
 col1, col2, col3, col4, col5, col6 = st.columns(6)
 col1.metric("Azimuth", f"{az.degrees:.2f}°")
 col2.metric("Elevation", f"{alt.degrees:.2f}°")
@@ -98,10 +111,9 @@ is_visible = alt.degrees > 0
 status_msg = "🟢 Visible (Link Active over Armenia)" if is_visible else "🔴 Below Horizon"
 st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.elevation.km:.1f} km | **Active Constellation:** {sat_choice}")
 
-# Plotly 3D Globe Visualization with Deep Space Background
+# Plotly 3D Globe with Space Theme
 fig = go.Figure()
 
-# Ground Station (Yerevan)
 fig.add_trace(go.Scattergeo(
     lon=[lon],
     lat=[lat],
@@ -122,7 +134,6 @@ for idx, (name, line1, line2) in enumerate(sat_list):
     sat_lat = sp.latitude.degrees
     sat_lon = sp.longitude.degrees
     
-    # Plot all satellites in the network
     fig.add_trace(go.Scattergeo(
         lon=[sat_lon],
         lat=[sat_lat],
@@ -133,7 +144,6 @@ for idx, (name, line1, line2) in enumerate(sat_list):
         name=name
     ))
     
-    # Link path for primary satellite
     if idx == 0:
         fig.add_trace(go.Scattergeo(
             lon=[lon, sat_lon],
@@ -158,21 +168,21 @@ for idx, (name, line1, line2) in enumerate(sat_list):
 fig.update_geos(
     projection_type="orthographic",
     showland=True,
-    landcolor="rgb(15, 25, 35)",
+    landcolor="rgb(15, 23, 42)",
     showocean=True,
-    oceancolor="rgb(2, 5, 12)",
+    oceancolor="rgb(2, 6, 23)",
     showcountries=True,
-    countrycolor="rgb(40, 60, 80)",
+    countrycolor="rgb(51, 65, 85)",
     showframe=False,
-    bgcolor="rgb(5, 8, 15)",
+    bgcolor="rgba(0,0,0,0)",
     center=dict(lat=lat, lon=lon)
 )
 
 fig.update_layout(
     height=680,
     margin={"r":0,"t":0,"l":0,"b":0},
-    paper_bgcolor="rgb(5, 8, 15)",
-    plot_bgcolor="rgb(5, 8, 15)",
+    paper_bgcolor="rgba(0,0,0,0)",
+    plot_bgcolor="rgba(0,0,0,0)",
     font=dict(color="white"),
     showlegend=False
 )
