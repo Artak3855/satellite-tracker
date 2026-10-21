@@ -76,16 +76,16 @@ is_visible = alt.degrees > 0
 status_msg = "🟢 Visible (Link Active over Armenia)" if is_visible else "🔴 Below Horizon"
 st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.elevation.km:.1f} km | **Constellation:** {sat_choice}")
 
-# Plotly 3D Globe Visualization (Space-dark theme matching azmth.space)
+# Plotly 3D Globe Visualization
 fig = go.Figure()
 
-# Ground Station (Yerevan)
+# Ground Station (Yerevan) - Fixed symbol error
 fig.add_trace(go.Scattergeo(
     lon=[lon],
     lat=[lat],
     text=["Ground Station (Yerevan)"],
     mode='markers',
-    marker=dict(size=12, color='red', symbol='home'),
+    marker=dict(size=12, color='red'),
     name="Ground Station"
 ))
 
@@ -100,7 +100,6 @@ for idx, (name, line1, line2) in enumerate(sat_list):
     sat_lat = sp.latitude.degrees
     sat_lon = sp.longitude.degrees
     
-    # Satellite Marker
     fig.add_trace(go.Scattergeo(
         lon=[sat_lon],
         lat=[sat_lat],
@@ -111,7 +110,6 @@ for idx, (name, line1, line2) in enumerate(sat_list):
         name=name
     ))
     
-    # Link Line
     if idx == 0:
         fig.add_trace(go.Scattergeo(
             lon=[lon, sat_lon],
@@ -132,7 +130,6 @@ for idx, (name, line1, line2) in enumerate(sat_list):
         "FSPL (dB)": 20 * np.log10(s_dist.km) + 20 * np.log10(freq_ghz * 1000) + 32.44
     })
 
-# Configure 3D Space Globe Layout
 fig.update_geos(
     projection_type="orthographic",
     showland=True,
