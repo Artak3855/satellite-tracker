@@ -76,7 +76,7 @@ is_visible = alt.degrees > 0
 status_msg = "🟢 Visible (Link Active over Armenia)" if is_visible else "🔴 Below Horizon"
 st.info(f"**Status:** {status_msg} | **Primary Satellite Altitude:** {subpoint.elevation.km:.1f} km | **Constellation:** {sat_choice}")
 
-# Plotly 3D Globe Visualization
+# Plotly 3D Globe Visualization with fixed dark space background
 fig = go.Figure()
 
 # Ground Station (Yerevan)
@@ -138,14 +138,15 @@ fig.update_geos(
     oceancolor="rgb(5, 10, 20)",
     showcountries=True,
     countrycolor="rgb(50, 70, 90)",
-    showframe=False,  # Ուղղված է
+    showframe=False,
+    bgcolor="rgb(10, 15, 25)",  # Մութ ֆոն գմբեթի ներսում
     center=dict(lat=lat, lon=lon)
 )
 
 fig.update_layout(
     height=650,
     margin={"r":0,"t":0,"l":0,"b":0},
-    paper_bgcolor="rgb(10, 15, 25)",
+    paper_bgcolor="rgb(10, 15, 25)",  # Ամբողջական մութ ֆոն շրջակայքում
     plot_bgcolor="rgb(10, 15, 25)",
     font=dict(color="white"),
     showlegend=False
